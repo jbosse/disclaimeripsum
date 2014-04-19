@@ -60,16 +60,18 @@
         <h3>Tired of Being Held Accountable?</h3>
 
 <p>Try using auto-generated text that will allow you to escape liability like a pin striped suit.</p>
-<p><input type="text" class="number-of-paragraphs" value="3"> Paragraphs</p>
-<p>
-<input type="radio" name="paragraphLength" value="long"> Long &nbsp;&nbsp;&nbsp;
-<input type="radio" name="paragraphLength" value="medium"> Medium &nbsp;&nbsp;&nbsp;
-<input type="radio" name="paragraphLength" value="short"> Short
+<p data-model="ViewModel"><input type="text" class="number-of-paragraphs" data-bind="value: paragraphs"> Paragraphs</p>
+<p data-model="ViewModel">
+<input type="radio" name="paragraphLength" value="long" data-bind="checked: paragraphLength"> Long &nbsp;&nbsp;&nbsp;
+<input type="radio" name="paragraphLength" value="medium" data-bind="checked: paragraphLength"> Medium &nbsp;&nbsp;&nbsp;
+<input type="radio" name="paragraphLength" value="short" data-bind="checked: paragraphLength"> Short
 </p>
-<p>
-	<button>Generate</button>
-<p>
-<textarea class="result" placeholder="Text will fill here..."></textarea>
+<p data-model="ViewModel">
+	<button data-bind="click: generate">Generate</button>
+</p>
+<p data-model="ViewModel">
+  <textarea class="result" placeholder="Text will fill here..." data-bind="value: generated"></textarea>
+</p>
       </section>
 
       <footer>
@@ -85,7 +87,70 @@
       </footer>
 
     </div>
-
-    
+    <script src="//ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+    <script src="javascripts/bruce.js"></script>
+    <script src="javascripts/bruce-ko.js"></script>
+    <script>
+      (function(ko, bruce, undefined){
+        bruce.register("ViewModel", function(){
+          var self = this;
+          self.paragraphs = ko.observable(3);
+          self.paragraphLength = ko.observable("short");
+          self.disclaimers = [
+            "This message contains confidential information and is intended only for [recipient name].",
+            "If you are not the named addressee you should not disseminate, distribute or copy this e-mail.",
+            "Please notify the sender immediately if you have received this e-mail by mistake and delete this e-mail from your system.",
+            "Finally, the recipient should check this email and any attachments for the presence of viruses.",
+            "The company accepts no liability for any damage caused by any virus transmitted by this email.",
+            "Data and information provided may be delayed.",
+            "Data and information is provided for informational purposes only, and is not intended for trading purposes.",
+            "Neither this website nor Company LLC nor any of their data or information providers shall be liable for any errors or delays in the data or information, or for any actions taken in reliance thereon.",
+            "We do not guarantee the accuracy, timeliness, reliability or completeness of any financial data or information.",
+            "You agree not to redistribute the data or information found herein.",
+            "Investments and foreign exchange can go up as well as down and involve the risk of loss.",
+            "Past performance will not necessarily be repeated in the future.",
+            "Trading futures, options or contracts for differences involves the risk of loss.",
+            "You may lose more than the amount originally invested and, in respect of these products as well as other products traded on margin, you may have to pay more later.",
+            "You should not invest in such products unless satisfied that they are suitable for you.",
+            "It could be some time before you see a return on your investment.",
+            "Changes in the rates of exchange between currencies may cause your investment/the income to go down or up.",
+            "If you have any doubts as to the suitability of these investments you should seek financial advice."
+          ];
+          self.generated = ko.observable("");
+          self.generate = function(){
+            var paragraphsIndex, paragraphsCount, disclaimerIndex, target, paragraph;
+            self.generated("");
+            if(self.disclaimers.length === 0){
+              return;
+            }
+            target = 0;
+            if(self.paragraphLength() === "short"){
+              target = 128;
+            }
+            if(self.paragraphLength() === "medium"){
+              target = 256;
+            }
+            if(self.paragraphLength() === "long"){
+              target = 512;
+            }
+            paragraphsCount = parseInt(self.paragraphs());
+            for(paragraphsIndex = 0; paragraphsIndex < paragraphsCount; paragraphsIndex++){
+              paragraph = "";
+              while(paragraph.length <= target){
+                disclaimerIndex = Math.floor((Math.random()*(self.disclaimers.length-1)));
+                if(paragraph.length > 0){
+                  paragraph = paragraph + " ";
+                }
+                paragraph = paragraph + self.disclaimers[disclaimerIndex];
+              }
+              if(self.generated().length > 0){
+                self.generated(self.generated () + "\n\n");
+              }
+              self.generated(self.generated() + paragraph);
+            }
+          };
+        },[]);
+      })(ko, bruce);
+    </script>
   </body>
 </html>
